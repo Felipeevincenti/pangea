@@ -70,7 +70,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         email,
         projectType: saved.projectType || '',
         description: saved.description || '',
-        files: saved.files ? saved.files.map(f => f.name).join(', ') : '',
+        attachments: saved.files || [],
       });
 
       submitBtn.disabled = true;

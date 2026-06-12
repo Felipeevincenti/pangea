@@ -23,11 +23,13 @@ export async function handler(event) {
   }
 
   try {
-    const { name, phone, email, projectType, description, files } = JSON.parse(event.body);
+    const { name, phone, email, projectType, description, files, attachments } = JSON.parse(event.body);
 
-    const filesInfo = files ? `<p><strong>Archivos:</strong> ${files}</p>` : "";
+    const filesInfo = attachments && attachments.length
+      ? `<p><strong>Archivos adjuntos:</strong> ${attachments.map(a => a.filename).join(', ')}</p>`
+      : '';
 
-    const data = await resend.emails.send({
+    const emailData = {
       from: "Contacto Web <onboarding@resend.dev>",
       to: "felipevincentisalani@gmail.com",
       reply_to: email,
@@ -41,7 +43,16 @@ export async function handler(event) {
         <p><strong>Descripción:</strong><br/> ${(description || "").replace(/\n/g, "<br>")}</p>
         ${filesInfo}
       `,
-    });
+    };
+
+    if (attachments && attachments.length) {
+      emailData.attachments = attachments.map(a => ({
+        filename: a.filename,
+        content: a.content,
+      }));
+    }
+
+    const data = await resend.emails.send(emailData);
 
     return {
       statusCode: 200,

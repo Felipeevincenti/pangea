@@ -88,8 +88,25 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       fileInput.click();
     });
 
-    fileInput.addEventListener('change', () => {
-      const files = Array.from(fileInput.files).map(f => ({ name: f.name, size: f.size, type: f.type }));
+    fileInput.addEventListener('change', async () => {
+      const rawFiles = Array.from(fileInput.files);
+      const MAX_SIZE = 5 * 1024 * 1024;
+      const oversized = rawFiles.filter(f => f.size > MAX_SIZE);
+      if (oversized.length) {
+        alert(`Los siguientes archivos superan los 5MB y no se adjuntarán:\n${oversized.map(f => f.name).join('\n')}`);
+      }
+
+      const files = [];
+      for (const f of rawFiles) {
+        if (f.size > MAX_SIZE) continue;
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(f);
+        });
+        files.push({ name: f.name, type: f.type, content: base64 });
+      }
+
       saveData({ files });
       const count = files.length;
       uploadBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M12 13V7"/><path d="m9 10 3-3 3 3"/></svg> ${count} archivo(s) adjunto(s)`;
