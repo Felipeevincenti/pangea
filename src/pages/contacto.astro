@@ -43,7 +43,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="btn-whatsapp">Contactar por WhatsApp</a>
 
-      <a href="/contacto/detalles" class="btn-next">Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <button class="btn-next" data-next>Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
 
     </main>
   </div>
@@ -73,7 +73,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const options = container.querySelector('[data-select-options]');
     const label = container.querySelector('[data-select-label]');
     const items = container.querySelectorAll('[data-value]');
-    if (!trigger || !options || !label) return;
+    const nextBtn = document.querySelector('[data-next]');
+    if (!trigger || !options || !label || !nextBtn) return;
 
     const saved = loadData().projectType;
     if (saved) {
@@ -94,6 +95,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       container.classList.toggle('is-open');
     }
 
+    function clearSelectError() {
+      container.classList.remove('error');
+    }
+
     trigger.addEventListener('click', (e) => {
       e.stopPropagation();
       toggle();
@@ -105,6 +110,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         items.forEach((el) => el.classList.remove('is-selected'));
         item.classList.add('is-selected');
         saveData({ projectType: item.dataset.value });
+        clearSelectError();
         close();
       });
     });
@@ -113,6 +119,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (!container.contains(e.target)) {
         close();
       }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (!loadData().projectType) {
+        container.classList.add('error');
+        label.textContent = 'Elegí una opción';
+        trigger.focus();
+        return;
+      }
+      window.location.href = '/contacto/detalles';
     });
   });
 </script>
@@ -209,7 +225,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-weight: 500;
     color: var(--muted);
     background: var(--bg);
-    border: none;
+    border: 2px solid transparent;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
     cursor: pointer;
     display: flex;
@@ -218,11 +234,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     gap: 8px;
     text-align: left;
     outline: none;
-    transition: box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
   .custom-select__trigger:focus-visible {
     box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .custom-select.error .custom-select__trigger {
+    border-color: #e74c3c;
+    box-shadow: 0 4px 24px rgba(231, 76, 60, 0.15);
+  }
+
+  .custom-select.error .custom-select__trigger:focus-visible {
+    box-shadow: 0 6px 28px rgba(231, 76, 60, 0.2);
   }
 
   .custom-select__arrow {
@@ -318,6 +343,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-size: 14px;
     font-weight: 500;
     color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
     text-decoration: none;
     margin-top: 16px;
     padding: 8px 0;

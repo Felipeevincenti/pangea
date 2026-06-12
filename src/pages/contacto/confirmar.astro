@@ -23,9 +23,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <p class="contact-subtext">Dejanos tu contacto para comunicarnos en la brevedad con novedades.</p>
 
       <form class="contact-form" data-form>
-        <input class="contact-input" type="text" name="name" placeholder="Nombre y Apellido" required>
-        <input class="contact-input" type="tel" name="phone" placeholder="Teléfono" required>
-        <input class="contact-input" type="email" name="email" placeholder="Correo Electrónico" required>
+        <input class="contact-input" type="text" name="name" placeholder="Nombre y Apellido">
+        <input class="contact-input" type="tel" name="phone" placeholder="Teléfono">
+        <input class="contact-input" type="email" name="email" placeholder="Correo Electrónico">
 
         <button class="btn-submit" type="submit">Finalizar</button>
       </form>
@@ -50,10 +50,70 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const submitBtn = form.querySelector('.btn-submit');
     const originalText = submitBtn.textContent;
 
+    const fields = {
+      name: form.querySelector('[name="name"]'),
+      phone: form.querySelector('[name="phone"]'),
+      email: form.querySelector('[name="email"]'),
+    };
+
+    const errors = {
+      name: 'Completá tu nombre',
+      phone: 'Completá tu teléfono',
+      email: 'Correo inválido',
+    };
+
+    const placeholders = {
+      name: 'Nombre y Apellido',
+      phone: 'Teléfono',
+      email: 'Correo Electrónico',
+    };
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function clearError(input) {
+      input.classList.remove('error');
+      input.placeholder = placeholders[input.name] || input.placeholder;
+    }
+
+    function setError(input) {
+      input.classList.add('error');
+      input.placeholder = errors[input.name] || 'Campo requerido';
+      input.focus();
+    }
+
+    function validate() {
+      let valid = true;
+
+      for (const [name, input] of Object.entries(fields)) {
+        clearError(input);
+        const val = input.value.trim();
+
+        if (!val) {
+          setError(input);
+          valid = false;
+          break;
+        }
+
+        if (name === 'email' && !emailRegex.test(val)) {
+          setError(input);
+          valid = false;
+          break;
+        }
+      }
+
+      return valid;
+    }
+
+    for (const input of Object.values(fields)) {
+      input.addEventListener('input', () => clearError(input));
+    }
+
     const ENDPOINT = '/.netlify/functions/send-email';
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      if (!validate()) return;
 
       const saved = (() => {
         try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
@@ -188,19 +248,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     font-weight: 500;
     color: var(--fg);
     background: var(--bg);
-    border: none;
+    border: 2px solid transparent;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
     outline: none;
-    transition: box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     text-align: left;
   }
 
   .contact-input::placeholder {
     color: #bbb;
+    transition: color 0.2s ease;
   }
 
   .contact-input:focus {
     box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .contact-input.error {
+    border-color: #e74c3c;
+    box-shadow: 0 4px 24px rgba(231, 76, 60, 0.15);
+  }
+
+  .contact-input.error:focus {
+    box-shadow: 0 6px 28px rgba(231, 76, 60, 0.2);
+  }
+
+  .contact-input.error::placeholder {
+    color: #e74c3c;
   }
 
   .btn-submit {

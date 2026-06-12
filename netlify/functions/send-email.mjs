@@ -25,10 +25,6 @@ export async function handler(event) {
   try {
     const { name, phone, email, projectType, description, files, attachments } = JSON.parse(event.body);
 
-    const filesInfo = attachments && attachments.length
-      ? `<p><strong>Archivos adjuntos:</strong> ${attachments.map(a => a.filename).join(', ')}</p>`
-      : '';
-
     const emailData = {
       from: "Contacto Web <onboarding@resend.dev>",
       to: "felipevincentisalani@gmail.com",
@@ -41,7 +37,6 @@ export async function handler(event) {
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Tipo de proyecto:</strong> ${projectType || "No especificado"}</p>
         <p><strong>Descripción:</strong><br/> ${(description || "").replace(/\n/g, "<br>")}</p>
-        ${filesInfo}
       `,
     };
 
