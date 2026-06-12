@@ -28,12 +28,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       <button class="btn-upload" data-upload-btn>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
-          <path d="M12 13V7"/>
-          <path d="m9 10 3-3 3 3"/>
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
         </svg>
         Adjuntar Archivos
       </button>
+
+      <ul class="file-list" data-file-list></ul>
 
       <div class="contact-actions">
         <a href="/contacto" class="btn-prev">
@@ -69,7 +69,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const textarea = document.querySelector('[data-textarea]');
     const fileInput = document.querySelector('[data-file-input]');
     const uploadBtn = document.querySelector('[data-upload-btn]');
-    if (!textarea || !fileInput || !uploadBtn) return;
+    const fileList = document.querySelector('[data-file-list]');
+    if (!textarea || !fileInput || !uploadBtn || !fileList) return;
 
     const saved = loadData();
     if (saved.description) {
@@ -80,9 +81,38 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       saveData({ description: textarea.value });
     });
 
-    if (saved.files && saved.files.length) {
-      uploadBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M12 13V7"/><path d="m9 10 3-3 3 3"/></svg> ${saved.files.length} archivo(s) adjunto(s)`;
+    function renderFiles() {
+      const data = loadData();
+      const files = data.files || [];
+      fileList.innerHTML = '';
+      files.forEach((f, i) => {
+        const li = document.createElement('li');
+        li.className = 'file-list__item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'file-list__name';
+        nameSpan.textContent = f.name;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'file-list__remove';
+        removeBtn.type = 'button';
+        removeBtn.setAttribute('aria-label', `Quitar ${f.name}`);
+        removeBtn.innerHTML =
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+
+        removeBtn.addEventListener('click', () => {
+          files.splice(i, 1);
+          saveData({ files });
+          renderFiles();
+        });
+
+        li.appendChild(nameSpan);
+        li.appendChild(removeBtn);
+        fileList.appendChild(li);
+      });
     }
+
+    renderFiles();
 
     uploadBtn.addEventListener('click', () => {
       fileInput.click();
@@ -107,9 +137,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         files.push({ name: f.name, type: f.type, content: base64 });
       }
 
-      saveData({ files });
-      const count = files.length;
-      uploadBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M12 13V7"/><path d="m9 10 3-3 3 3"/></svg> ${count} archivo(s) adjunto(s)`;
+      const existing = loadData().files || [];
+      saveData({ files: [...existing, ...files] });
+      renderFiles();
+
+      fileInput.value = '';
     });
   });
 </script>
@@ -243,6 +275,71 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   .btn-upload:active {
     transform: scale(0.98);
+  }
+
+  .file-list {
+    width: 100%;
+    list-style: none;
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+  }
+
+  :global(.file-list__item) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    background: var(--bg);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fg);
+  }
+
+  :global(.file-list__name) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    text-align: left;
+  }
+
+  :global(.file-list__remove) {
+    flex-shrink: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    padding: 4px;
+    margin: 0;
+    font: inherit;
+    color: #ccc;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    outline: none;
+    transition: color 0.2s ease;
+  }
+
+  :global(.file-list__remove:hover) {
+    color: #e74c3c;
+  }
+
+  :global(.file-list__remove:focus-visible) {
+    outline: 2px solid #e74c3c;
+    outline-offset: 2px;
   }
 
   .contact-actions {
