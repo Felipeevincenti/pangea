@@ -46,10 +46,13 @@ export async function handler(event) {
     };
 
     if (attachments && attachments.length) {
-      emailData.attachments = attachments.map(a => ({
-        filename: a.filename,
-        content: Buffer.from(a.content, 'base64'),
-      }));
+      emailData.attachments = attachments
+        .filter(a => a.content)
+        .map(a => ({
+          filename: a.name,
+          content: a.content,
+          contentType: a.type || 'application/octet-stream',
+        }));
     }
 
     const data = await resend.emails.send(emailData);
