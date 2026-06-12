@@ -2,10 +2,22 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const headers = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-Type": "application/json",
+};
+
 export async function handler(event) {
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers, body: "" };
+  }
+
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
+      headers,
       body: JSON.stringify({ error: "Method not allowed" }),
     };
   }
@@ -33,12 +45,14 @@ export async function handler(event) {
 
     return {
       statusCode: 200,
+      headers,
       body: JSON.stringify({ success: true, data }),
     };
   } catch (error) {
     console.error("Error enviando email:", error);
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({ error: error.message }),
     };
   }
