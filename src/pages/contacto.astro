@@ -41,7 +41,55 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </ul>
       </div>
 
-      <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="btn-whatsapp">Contactar por WhatsApp</a>
+      <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="btn-whatsapp" data-whatsapp>Contactar por WhatsApp</a>
+
+      <div class="desktop-form" data-desktop-form>
+        <div class="desktop-form__cols">
+          <div class="desktop-form__left">
+            <div class="custom-select" data-select-desktop>
+              <button class="custom-select__trigger" data-select-desktop-trigger>
+                <span data-select-desktop-label>¿Qué vas a crear?</span>
+                <svg class="custom-select__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <ul class="custom-select__options" data-select-desktop-options>
+                <li data-value="" class="custom-select__option custom-select__option--placeholder">¿Qué vas a crear?</li>
+                <li data-value="marca-logo" class="custom-select__option">Marca/Logo</li>
+                <li data-value="web-app" class="custom-select__option">Página web/App</li>
+                <li data-value="packaging" class="custom-select__option">Packaging</li>
+                <li data-value="ilustracion" class="custom-select__option">Ilustración</li>
+                <li data-value="piezas-visuales" class="custom-select__option">Piezas visuales/Contenido</li>
+                <li data-value="edicion-video" class="custom-select__option">Edición de video</li>
+                <li data-value="no-se" class="custom-select__option">No se, necesito ayuda</li>
+              </ul>
+            </div>
+
+            <div class="desktop-form__fields">
+              <input class="contact-input" type="text" name="name" placeholder="Nombre y Apellido">
+              <input class="contact-input" type="tel" name="phone" placeholder="Teléfono">
+              <input class="contact-input" type="email" name="email" placeholder="Correo Electrónico">
+            </div>
+          </div>
+
+          <div class="desktop-form__right">
+            <textarea class="contact-textarea" data-textarea placeholder="Espacio para desarrollar explicación de tu idea." rows="5"></textarea>
+
+            <button class="btn-upload" data-upload-btn type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+              Adjuntar Archivos
+            </button>
+
+            <ul class="file-list" data-file-list></ul>
+
+            <input type="file" multiple hidden data-file-input>
+          </div>
+        </div>
+
+        <button class="btn-submit" type="submit">Finalizar</button>
+      </div>
 
       <button class="btn-next" data-next>Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
 
@@ -129,6 +177,217 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         return;
       }
       window.location.href = '/contacto/detalles';
+    });
+
+    /* Desktop select */
+    const desktopContainer = document.querySelector('[data-select-desktop]');
+    const desktopTrigger = desktopContainer?.querySelector('[data-select-desktop-trigger]');
+    const desktopOptions = desktopContainer?.querySelector('[data-select-desktop-options]');
+    const desktopLabel = desktopContainer?.querySelector('[data-select-desktop-label]');
+    const desktopItems = desktopContainer?.querySelectorAll('[data-value]');
+
+    if (desktopContainer && desktopTrigger && desktopOptions && desktopLabel && desktopItems) {
+      const savedDesktop = loadData().projectType;
+      if (savedDesktop) {
+        const match = desktopContainer.querySelector(`[data-value="${savedDesktop}"]`);
+        if (match) {
+          desktopLabel.textContent = match.textContent;
+          match.classList.add('is-selected');
+          desktopContainer.dataset.hasValue = 'true';
+        }
+      }
+
+      function closeDesktop() {
+        desktopOptions.classList.remove('is-open');
+        desktopContainer.classList.remove('is-open');
+      }
+
+      function toggleDesktop() {
+        desktopOptions.classList.toggle('is-open');
+        desktopContainer.classList.toggle('is-open');
+      }
+
+      function clearDesktopError() {
+        desktopContainer.classList.remove('error');
+      }
+
+      desktopTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDesktop();
+      });
+
+      desktopItems.forEach((item) => {
+        item.addEventListener('click', () => {
+          desktopLabel.textContent = item.textContent;
+          desktopItems.forEach((el) => el.classList.remove('is-selected'));
+          item.classList.add('is-selected');
+          saveData({ projectType: item.dataset.value });
+          desktopContainer.dataset.hasValue = 'true';
+          clearDesktopError();
+          closeDesktop();
+        });
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!desktopContainer.contains(e.target)) {
+          closeDesktop();
+        }
+      });
+    }
+
+    /* Desktop unified form */
+    const desktopForm = document.querySelector('[data-desktop-form]');
+    if (!desktopForm) return;
+
+    const formData = loadData();
+    const textarea = desktopForm.querySelector('[data-textarea]');
+    const fileInput = desktopForm.querySelector('[data-file-input]');
+    const uploadBtn = desktopForm.querySelector('[data-upload-btn]');
+    const fileList = desktopForm.querySelector('[data-file-list]');
+    const nameInput = desktopForm.querySelector('[name="name"]');
+    const phoneInput = desktopForm.querySelector('[name="phone"]');
+    const emailInput = desktopForm.querySelector('[name="email"]');
+    const submitBtn = desktopForm.querySelector('.btn-submit');
+
+    if (formData.description) textarea.value = formData.description;
+    textarea.addEventListener('input', () => saveData({ description: textarea.value }));
+
+    function renderFiles() {
+      const data = loadData();
+      const files = data.files || [];
+      fileList.innerHTML = '';
+      files.forEach((f, i) => {
+        const li = document.createElement('li');
+        li.className = 'file-list__item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'file-list__name';
+        nameSpan.textContent = f.name;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'file-list__remove';
+        removeBtn.type = 'button';
+        removeBtn.setAttribute('aria-label', `Quitar ${f.name}`);
+        removeBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+        removeBtn.addEventListener('click', () => {
+          files.splice(i, 1);
+          saveData({ files });
+          renderFiles();
+        });
+
+        li.appendChild(nameSpan);
+        li.appendChild(removeBtn);
+        fileList.appendChild(li);
+      });
+    }
+
+    renderFiles();
+
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', async () => {
+      const rawFiles = Array.from(fileInput.files);
+      const MAX_SIZE = 5 * 1024 * 1024;
+      const oversized = rawFiles.filter(f => f.size > MAX_SIZE);
+      if (oversized.length) {
+        alert(`Los siguientes archivos superan los 5MB y no se adjuntarán:\n${oversized.map(f => f.name).join('\n')}`);
+      }
+
+      const files = [];
+      for (const f of rawFiles) {
+        if (f.size > MAX_SIZE) continue;
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(f);
+        });
+        files.push({ name: f.name, type: f.type, content: base64 });
+      }
+
+      const existing = loadData().files || [];
+      saveData({ files: [...existing, ...files] });
+      renderFiles();
+      fileInput.value = '';
+    });
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const errors = {
+      name: 'Completá tu nombre',
+      phone: 'Completá tu teléfono',
+      email: 'Correo inválido',
+    };
+    const placeholders = {
+      name: 'Nombre y Apellido',
+      phone: 'Teléfono',
+      email: 'Correo Electrónico',
+    };
+
+    function clearError(input) {
+      input.classList.remove('error');
+      input.placeholder = placeholders[input.name] || input.placeholder;
+    }
+
+    function setError(input) {
+      input.classList.add('error');
+      input.placeholder = errors[input.name] || 'Campo requerido';
+      input.focus();
+    }
+
+    function validateDesktop() {
+      let valid = true;
+
+      for (const input of [nameInput, phoneInput, emailInput]) {
+        clearError(input);
+        const val = input.value.trim();
+        if (!val) { setError(input); valid = false; break; }
+        if (input.name === 'email' && !emailRegex.test(val)) { setError(input); valid = false; break; }
+      }
+
+      return valid;
+    }
+
+    [nameInput, phoneInput, emailInput].forEach(input => {
+      input.addEventListener('input', () => clearError(input));
+    });
+
+    submitBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      if (!loadData().projectType) {
+        desktopContainer.classList.add('error');
+        desktopLabel.textContent = 'Elegí una opción';
+        desktopTrigger.focus();
+        return;
+      }
+
+      if (!validateDesktop()) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+
+      try {
+        const res = await fetch('/.netlify/functions/send-email', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: nameInput.value,
+            phone: phoneInput.value,
+            email: emailInput.value,
+            projectType: loadData().projectType || '',
+            description: textarea.value || '',
+            attachments: loadData().files || [],
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (res.ok) {
+          localStorage.removeItem(STORAGE_KEY);
+          window.location.href = '/contacto/gracias';
+        } else {
+          throw new Error('Error al enviar');
+        }
+      } catch {
+        window.location.href = '/contacto/error';
+      }
     });
   });
 </script>
@@ -335,6 +594,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     transform: scale(0.98);
   }
 
+  .desktop-form {
+    display: none;
+  }
+
   .btn-next {
     display: inline-flex;
     align-items: center;
@@ -358,5 +621,237 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .btn-next:hover {
     color: var(--fg);
     gap: 10px;
+  }
+
+  @media (min-width: 800px) {
+    [data-select] {
+      display: none;
+    }
+
+    .btn-next {
+      display: none;
+    }
+
+    .btn-whatsapp {
+      display: none;
+    }
+
+    .desktop-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 28px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+    }
+
+    .desktop-form__cols {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .desktop-form__left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .desktop-form__right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .desktop-form__fields {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    [data-select-desktop-label] {
+      color: #bbb;
+    }
+
+    [data-select-desktop][data-has-value] [data-select-desktop-label] {
+      color: var(--fg);
+    }
+
+    .contact-input {
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--fg);
+      background: var(--bg);
+      border: 2px solid transparent;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      text-align: left;
+    }
+
+    .contact-input::placeholder {
+      color: #bbb;
+    }
+
+    .contact-input:focus {
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+    }
+
+    .contact-input.error {
+      border-color: #e74c3c;
+      box-shadow: 0 4px 24px rgba(231, 76, 60, 0.15);
+    }
+
+    .contact-input.error::placeholder {
+      color: #e74c3c;
+    }
+
+    .contact-textarea {
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--fg);
+      background: var(--bg);
+      border: none;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      resize: none;
+      outline: none;
+      transition: box-shadow 0.2s ease;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    .contact-textarea::placeholder {
+      color: #bbb;
+    }
+
+    .contact-textarea:focus {
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+    }
+
+    .custom-select {
+      width: 100%;
+      margin-bottom: 0;
+    }
+
+    .btn-upload {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      background: #6b6b6b;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-upload:hover {
+      background: #555;
+    }
+
+    :global(.file-list) {
+      width: 100%;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    :global(.file-list__item) {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      background: var(--bg);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--fg);
+    }
+
+    :global(.file-list__name) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      text-align: left;
+      color: #bbb;
+    }
+
+    :global(.file-list__remove) {
+      flex-shrink: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      border: none;
+      padding: 4px;
+      margin: 0;
+      font: inherit;
+      color: #ccc;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      outline: none;
+      transition: color 0.2s ease;
+    }
+
+    :global(.file-list__remove:hover) {
+      color: #e74c3c;
+    }
+
+    :global(.file-list__remove:focus-visible) {
+      outline: 2px solid #e74c3c;
+      outline-offset: 2px;
+    }
+
+    .btn-submit {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: 50px auto 0;
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 500;
+      text-align: center;
+      background: #6b6b6b;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .btn-submit:hover {
+      background: #555;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
   }
 </style>

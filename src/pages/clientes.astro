@@ -50,4 +50,15 @@ import { projects } from '../data/projects';
     background: #fff;
     box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   }
+
+  @media (min-width: 800px) {
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 80px 24px 24px;
+    }
+  }
 </style>

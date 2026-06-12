@@ -111,4 +111,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   .thanks-back:active {
     transform: scale(0.98);
   }
+
+  @media (min-width: 800px) {
+    .thanks-card {
+      max-width: 480px;
+      border-radius: var(--radius);
+    }
+  }
 </style>

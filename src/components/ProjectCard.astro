@@ -41,9 +41,15 @@ const attrs = href ? { href } : {};
     display: block;
     text-decoration: none;
     color: inherit;
-    border-radius: 14px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  @media (min-width: 800px) {
+    .project-card__inner {
+      border-radius: 14px;
+    }
   }
 </style>
 

@@ -73,6 +73,7 @@ html.is-scrollable body {
   -webkit-overflow-scrolling: touch;
 }
 
+
 /* ============================================
    Pages: index.astro (pages/index.css)
    ============================================ */
@@ -240,4 +241,63 @@ html.is-scrollable body {
   font-weight: 400;
   color: var(--muted);
   margin-top: 4px;
+}
+
+/* Desktop ≥ 800px */
+@media (min-width: 800px) {
+  html, body {
+    background: var(--bg);
+  }
+
+  .phone-frame {
+    max-width: none;
+    margin: 0;
+  }
+
+  .phone-frame--fixed {
+    height: 100dvh;
+    max-height: none;
+  }
+
+  .phone-frame--scroll {
+    height: 100dvh;
+  }
+
+  .back-bubble {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+  }
+
+  /* Contact pages — use wider layout */
+  .phone-frame--contact {
+    overflow: visible;
+  }
+
+  /* Home page — side layout on desktop */
+  .phone-frame--fixed:not(.phone-frame--contact) {
+    flex-direction: row;
+  }
+
+  .hero-image {
+    flex: 0 0 50%;
+    width: 50%;
+    height: 100%;
+  }
+
+  .content {
+    flex: 1;
+    justify-content: center;
+    gap: 40px;
+    padding: 0 40px;
+  }
+
+  .nav {
+    max-width: 320px;
+    margin-top: 0;
+  }
+
+  .brand {
+    margin-top: 0;
+  }
 }
