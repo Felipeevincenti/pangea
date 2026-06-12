@@ -48,7 +48,7 @@ export async function handler(event) {
     if (attachments && attachments.length) {
       emailData.attachments = attachments.map(a => ({
         filename: a.filename,
-        content: a.content,
+        content: Buffer.from(a.content, 'base64'),
       }));
     }
 
