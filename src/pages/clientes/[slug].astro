@@ -1,0 +1,41 @@
+---
+import { projects } from '../../data/projects';
+import StoriesCarousel from '../../components/StoriesCarousel.astro';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: project,
+  }));
+}
+
+interface Props {
+  slug: string;
+  title: string;
+  tags: string;
+  stories: { type: 'image' | 'video'; src: string }[];
+}
+
+const project = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>{project.title} — PANGEA</title>
+  </head>
+  <body>
+    <StoriesCarousel stories={project.stories} title={project.title} tags={project.tags} />
+  </body>
+</html>
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+  }
+</style>

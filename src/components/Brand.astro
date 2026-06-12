@@ -1,0 +1,35 @@
+---
+import logo from '../assets/logo.png';
+
+
+interface Props {
+  logoSrc?: ImageMetadata;
+  logoAlt?: string;
+  subtitle?: string;
+  services?: string[];
+}
+
+const {
+  logoSrc = logo,
+  logoAlt = 'Pangea',
+  subtitle = 'Estudio de diseño',
+  services = ['Branding', 'Web', 'Ilustración', 'Packaging'],
+} = Astro.props;
+
+const servicesLabel = services.join(' | ');
+---
+
+<div class="brand">
+  <h1 class="brand-logo">
+    <img
+      src={logoSrc.src}
+      alt={logoAlt}
+      width={logoSrc.width}
+      height={logoSrc.height}
+      class="brand-logo__img"
+      decoding="async"
+    />
+  </h1>
+  <p class="brand-sub">{subtitle}</p>
+  <p class="brand-services">{servicesLabel}</p>
+</div>

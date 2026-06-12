@@ -1,0 +1,49 @@
+---
+interface Props {
+  title: string;
+  tags: string;
+  href?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  videoSrc?: string;
+}
+
+const { title, tags, href, imageSrc, imageAlt, videoSrc } = Astro.props;
+
+const Tag = href ? 'a' : 'div';
+const attrs = href ? { href } : {};
+---
+
+<li class="project-card">
+  <Tag class="project-card__inner" {...attrs}>
+    <div class="project-card__media">
+      {videoSrc ? (
+        <video autoplay muted loop playsinline>
+          <source src={videoSrc} type="video/mp4" />
+        </video>
+      ) : imageSrc ? (
+        <img src={imageSrc} alt={imageAlt ?? title} loading="lazy" />
+      ) : null}
+    </div>
+    <div class="project-card__info">
+      <h2 class="project-card__title">{title}</h2>
+      <p class="project-card__tags">{tags}</p>
+    </div>
+  </Tag>
+</li>
+
+<style>
+  .project-card {
+    list-style: none;
+  }
+
+  .project-card__inner {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+</style>
+

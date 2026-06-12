@@ -1,0 +1,18 @@
+---
+
+
+interface Props {
+  href: string;
+  delay?: string;
+}
+
+const { href, delay = '0.35s' } = Astro.props;
+---
+
+<a
+  href={href}
+  class="btn"
+  style={`--delay: ${delay}`}
+>
+  <slot />
+</a>

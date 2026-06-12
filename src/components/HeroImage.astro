@@ -1,0 +1,26 @@
+---
+
+
+interface Props {
+  src?: string;
+  alt?: string;
+  videoSrc?: string;
+}
+
+const {
+  src,
+  alt = 'Pangea hero',
+  videoSrc = '/media/hero-video.mp4',
+} = Astro.props;
+---
+
+<div class="hero-image">
+  {videoSrc
+    ? (
+      <video autoplay muted loop playsinline>
+        <source src='/media/hero-video.mp4' type="video/mp4" />
+      </video>
+    )
+    : src && <img src={src} alt={alt} />
+  }
+</div>

@@ -1,0 +1,252 @@
+---
+interface Story {
+  type: 'image' | 'video';
+  src: string;
+}
+
+interface Props {
+  stories: Story[];
+  title: string;
+  tags: string;
+}
+
+const { stories, title, tags } = Astro.props;
+const total = stories.length;
+---
+
+<div class="stories" data-total={total}>
+  <div class="stories__media">
+    {stories.map((story, i) => (
+      story.type === 'video'
+        ? <video class="stories__video" data-index={i} src={story.src} muted playsinline preload="metadata"></video>
+        : <img class="stories__img" data-index={i} src={story.src} alt="" loading={i === 0 ? 'eager' : 'lazy'} />
+    ))}
+  </div>
+
+  <div class="stories__progress">
+    {stories.map((_, i) => (
+      <div class="stories__segment" data-index={i}>
+        <div class="stories__fill"></div>
+      </div>
+    ))}
+  </div>
+
+  <div class="stories__bottom">
+    <div class="stories__info">
+      <h2 class="stories__title">{title}</h2>
+      <p class="stories__tags">{tags}</p>
+    </div>
+  </div>
+
+  <button class="stories__nav stories__nav--prev" aria-label="Anterior"></button>
+  <button class="stories__nav stories__nav--next" aria-label="Siguiente"></button>
+
+  <a href="/clientes" class="stories__back" aria-label="Volver">&larr;</a>
+</div>
+
+<script>
+  class StoriesController {
+    private el: HTMLElement;
+    private index = 0;
+    private total: number;
+    private fills: HTMLElement[];
+    private imgs: HTMLElement[];
+    private videos: HTMLMediaElement[];
+    private timer = 0;
+    private running = false;
+
+    constructor(el: HTMLElement) {
+      this.el = el;
+      this.total = Number(el.dataset.total);
+      this.fills = [...el.querySelectorAll<HTMLElement>('.stories__fill')];
+      this.imgs = [...el.querySelectorAll<HTMLElement>('.stories__img')];
+      this.videos = [...el.querySelectorAll<HTMLMediaElement>('.stories__video')];
+
+      el.querySelector<HTMLElement>('.stories__nav--prev')!.onclick = (e) => { e.stopPropagation(); this.prev(); };
+      el.querySelector<HTMLElement>('.stories__nav--next')!.onclick = (e) => { e.stopPropagation(); this.next(); };
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') this.prev();
+        if (e.key === 'ArrowRight') this.next();
+      });
+
+      this.go(0);
+    }
+
+    private go(i: number) {
+      this.stop();
+      this.index = i;
+
+      this.imgs.forEach((img, idx) => img.classList.toggle('active', idx === i));
+      this.videos.forEach((vid, idx) => {
+        vid.classList.toggle('active', idx === i);
+        if (idx === i) vid.play().catch(() => {});
+        else { vid.pause(); vid.currentTime = 0; }
+      });
+
+      this.fills.forEach((fill, idx) => {
+        fill.style.transition = 'none';
+        fill.style.width = idx < i ? '100%' : '0';
+      });
+
+      void this.fills[i].offsetHeight;
+      this.fills[i].style.transition = '';
+      this.fills[i].style.width = '100%';
+
+      this.schedule();
+    }
+
+    private schedule() {
+      this.running = true;
+      const story = this.imgs[this.index] ? 'image' : 'video';
+      const duration = story === 'image' ? 3000 : 0;
+
+      if (story === 'video') {
+        const vid = this.videos[this.index];
+        if (vid) vid.onended = () => this.next();
+      }
+
+      if (duration > 0) {
+        this.timer = window.setTimeout(() => this.next(), duration);
+      }
+    }
+
+    private stop() {
+      this.running = false;
+      clearTimeout(this.timer);
+      const vid = this.videos[this.index];
+      if (vid) { vid.onended = null; vid.pause(); }
+    }
+
+    prev() {
+      if (this.index > 0) this.go(this.index - 1);
+    }
+
+    next() {
+      if (this.index < this.total - 1) this.go(this.index + 1);
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('.stories').forEach((el) => new StoriesController(el));
+</script>
+
+<style>
+  .stories {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #000;
+    user-select: none;
+  }
+
+  .stories__media {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+
+  .stories__img,
+  .stories__video {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .stories__img.active,
+  .stories__video.active {
+    opacity: 1;
+  }
+
+  .stories__progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 4px;
+    padding: 12px 8px;
+    z-index: 2;
+  }
+
+  .stories__segment {
+    flex: 1;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .stories__fill {
+    width: 0;
+    height: 100%;
+    background: #fff;
+    border-radius: 2px;
+    transition: width 3s linear;
+  }
+
+  .stories__bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    padding: 48px 20px max(20px, env(safe-area-inset-bottom));
+    background: linear-gradient(transparent, rgba(0,0,0,0.65));
+    pointer-events: none;
+  }
+
+  .stories__info {
+    pointer-events: auto;
+  }
+
+  .stories__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+
+  .stories__tags {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    margin-top: 4px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  .stories__nav {
+    position: absolute;
+    top: 20px;
+    bottom: 0;
+    width: 50%;
+    z-index: 2;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .stories__nav--prev { left: 0; }
+  .stories__nav--next { right: 0; }
+
+  .stories__back {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    z-index: 3;
+    color: #fff;
+    font-size: 24px;
+    text-decoration: none;
+    opacity: 0.85;
+    line-height: 1;
+    padding: 4px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  .stories__back:hover { opacity: 1; }
+</style>

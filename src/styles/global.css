@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap');
+
+:root {
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #444444;
+  --radius: 18px;
+
+  --font-body: 'DM Sans', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+html.is-scrollable,
+html.is-scrollable body {
+  height: auto;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ============================================
+   Keyframes (globales)
+   ============================================ */
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* ============================================
+   Layout: BaseLayout.astro (phone-frame.css)
+   ============================================ */
+
+.phone-frame {
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--bg);
+}
+
+.phone-frame--fixed {
+  height: 100dvh;
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.phone-frame--scroll {
+  height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================
+   Pages: index.astro (pages/index.css)
+   ============================================ */
+
+.content {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 28px max(28px, env(safe-area-inset-bottom));
+  overflow: hidden;
+}
+
+.nav {
+  width: 100%;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ============================================
+   Pages: clientes.astro (pages/clientes.css)
+   ============================================ */
+
+.projects {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   Component: HeroImage.astro (components/hero-image.css)
+   ============================================ */
+
+.hero-image {
+  width: 100%;
+  flex: 0 0 40%;
+  height: 40%;
+  min-height: 0;
+  background: #e8e8e8;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-image img,
+.hero-image video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ============================================
+   Component: Brand.astro (components/brand.css)
+   ============================================ */
+
+.brand {
+  text-align: center;
+  margin-top: clamp(20px, 4dvh, 36px);
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+}
+
+.brand-logo {
+  margin: 0;
+  line-height: 0;
+}
+
+.brand-logo__img {
+  display: block;
+  width: min(100%, 150px);
+  height: auto;
+  margin: 0 auto;
+}
+
+.brand-sub {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--fg);
+  margin-top: 10px;
+}
+
+.brand-services {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+/* ============================================
+   Component: NavButton.astro (components/nav-button.css)
+   ============================================ */
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 18px 24px;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--fg);
+  background: var(--bg);
+  border: none;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--delay, 0.35s);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* ============================================
+   Component: ProjectCard.astro (components/project-card.css)
+   ============================================ */
+
+.project-card__media {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #e5e5e5;
+  overflow: hidden;
+}
+
+.project-card__media img,
+.project-card__media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.project-card__info {
+  padding: 14px 16px 18px;
+  background: var(--bg);
+}
+
+.project-card__title {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--fg);
+}
+
+.project-card__tags {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 4px;
+}

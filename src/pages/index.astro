@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroImage from '../components/HeroImage.astro';
+import Brand from '../components/Brand.astro';
+import NavButton from '../components/NavButton.astro';
+
+const navLinks = [
+  { href: '/clientes', label: 'Nuestros Clientes', delay: '0.35s' },
+  { href: '#nosotros',  label: 'Nosotros',          delay: '0.46s' },
+  { href: '#contacto', label: 'Consultanos',        delay: '0.57s' },
+];
+---
+
+<BaseLayout>
+  <div class="phone-frame phone-frame--fixed">
+    <HeroImage />
+
+    <main class="content">
+      <Brand />
+
+      <nav class="nav">
+        {navLinks.map(({ href, label, delay }) => (
+          <NavButton href={href} delay={delay}>
+            {label}
+          </NavButton>
+        ))}
+      </nav>
+    </main>
+  </div>
+</BaseLayout>
