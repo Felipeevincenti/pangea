@@ -1,0 +1,278 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="PANGEA — Cuéntanos más">
+  <a href="/" class="back-bubble" aria-label="Volver al inicio">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+  </a>
+  <div class="phone-frame phone-frame--fixed phone-frame--contact">
+    <main class="contact-content">
+
+      <div class="contact-avatar">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+
+      <h1 class="contact-heading">Cuentanos todo</h1>
+
+      <p class="contact-subtext">Queremos conocer mejor tu idea, para brindarte el mejor asesoramiento</p>
+
+      <textarea class="contact-textarea" data-textarea placeholder="Espacio para desarrollar explicación de tu idea." rows="5"></textarea>
+
+      <input type="file" multiple hidden data-file-input>
+
+      <button class="btn-upload" data-upload-btn>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+          <path d="M12 13V7"/>
+          <path d="m9 10 3-3 3 3"/>
+        </svg>
+        Adjuntar Archivos
+      </button>
+
+      <div class="contact-actions">
+        <a href="/contacto" class="btn-prev">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver
+        </a>
+        <a href="/contacto/confirmar" class="btn-next">
+          Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+    </main>
+  </div>
+</BaseLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const STORAGE_KEY = 'pangea_contact';
+
+    function loadData() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveData(data) {
+      const current = loadData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...data }));
+    }
+
+    const textarea = document.querySelector('[data-textarea]');
+    const fileInput = document.querySelector('[data-file-input]');
+    const uploadBtn = document.querySelector('[data-upload-btn]');
+    if (!textarea || !fileInput || !uploadBtn) return;
+
+    const saved = loadData();
+    if (saved.description) {
+      textarea.value = saved.description;
+    }
+
+    textarea.addEventListener('input', () => {
+      saveData({ description: textarea.value });
+    });
+
+    if (saved.files && saved.files.length) {
+      uploadBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M12 13V7"/><path d="m9 10 3-3 3 3"/></svg> ${saved.files.length} archivo(s) adjunto(s)`;
+    }
+
+    uploadBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', () => {
+      const files = Array.from(fileInput.files).map(f => ({ name: f.name, size: f.size, type: f.type }));
+      saveData({ files });
+      const count = files.length;
+      uploadBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M12 13V7"/><path d="m9 10 3-3 3 3"/></svg> ${count} archivo(s) adjunto(s)`;
+    });
+  });
+</script>
+
+<style>
+  .back-bubble {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 9999;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111;
+    text-decoration: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .back-bubble:hover {
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  .phone-frame--contact {
+    overflow: visible;
+  }
+
+  .contact-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 28px max(28px, env(safe-area-inset-bottom));
+    text-align: center;
+  }
+
+  .contact-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+  }
+
+  .contact-heading {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+  }
+
+  .contact-subtext {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 280px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+  }
+
+  .contact-textarea {
+    width: 100%;
+    padding: 18px 24px;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--fg);
+    background: var(--bg);
+    border: none;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    resize: none;
+    outline: none;
+    transition: box-shadow 0.2s ease;
+    text-align: left;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+  }
+
+  .contact-textarea::placeholder {
+    color: #bbb;
+  }
+
+  .contact-textarea:focus {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .btn-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 32px;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    background: #6b6b6b;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: background 0.2s ease, transform 0.15s ease;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+  }
+
+  .btn-upload:hover {
+    background: #555;
+  }
+
+  .btn-upload:active {
+    transform: scale(0.98);
+  }
+
+  .contact-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 24px;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards;
+  }
+
+  .btn-prev {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 8px 0;
+    transition: color 0.2s ease, gap 0.2s ease;
+  }
+
+  .btn-prev:hover {
+    color: var(--fg);
+    gap: 10px;
+  }
+
+  .btn-next {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 8px 0;
+    transition: color 0.2s ease, gap 0.2s ease;
+  }
+
+  .btn-next:hover {
+    color: var(--fg);
+    gap: 10px;
+  }
+</style>

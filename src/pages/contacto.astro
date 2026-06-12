@@ -1,0 +1,334 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="PANGEA — Contacto">
+  <a href="/" class="back-bubble" aria-label="Volver al inicio">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+  </a>
+  <div class="phone-frame phone-frame--fixed phone-frame--contact">
+    <main class="contact-content">
+
+      <div class="contact-avatar">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+
+      <h1 class="contact-heading">Cuentanos todo</h1>
+
+      <p class="contact-subtext">Queremos conocer mejor tu idea, para brindarte el mejor asesoramiento</p>
+
+      <div class="custom-select" data-select>
+        <button class="custom-select__trigger" data-select-trigger>
+          <span data-select-label>¿Qué vas a crear?</span>
+          <svg class="custom-select__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <ul class="custom-select__options" data-select-options>
+          <li data-value="" class="custom-select__option custom-select__option--placeholder">¿Qué vas a crear?</li>
+          <li data-value="marca-logo" class="custom-select__option">Marca/Logo</li>
+          <li data-value="web-app" class="custom-select__option">Página web/App</li>
+          <li data-value="packaging" class="custom-select__option">Packaging</li>
+          <li data-value="ilustracion" class="custom-select__option">Ilustración</li>
+          <li data-value="piezas-visuales" class="custom-select__option">Piezas visuales/Contenido</li>
+          <li data-value="edicion-video" class="custom-select__option">Edición de video</li>
+          <li data-value="no-se" class="custom-select__option">No se, necesito ayuda</li>
+        </ul>
+      </div>
+
+      <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="btn-whatsapp">Contactar por WhatsApp</a>
+
+      <a href="/contacto/detalles" class="btn-next">Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+
+    </main>
+  </div>
+</BaseLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const STORAGE_KEY = 'pangea_contact';
+
+    function loadData() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveData(data) {
+      const current = loadData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...data }));
+    }
+
+    const container = document.querySelector('[data-select]');
+    if (!container) return;
+
+    const trigger = container.querySelector('[data-select-trigger]');
+    const options = container.querySelector('[data-select-options]');
+    const label = container.querySelector('[data-select-label]');
+    const items = container.querySelectorAll('[data-value]');
+    if (!trigger || !options || !label) return;
+
+    const saved = loadData().projectType;
+    if (saved) {
+      const match = container.querySelector(`[data-value="${saved}"]`);
+      if (match) {
+        label.textContent = match.textContent;
+        match.classList.add('is-selected');
+      }
+    }
+
+    function close() {
+      options.classList.remove('is-open');
+      container.classList.remove('is-open');
+    }
+
+    function toggle() {
+      options.classList.toggle('is-open');
+      container.classList.toggle('is-open');
+    }
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggle();
+    });
+
+    items.forEach((item) => {
+      item.addEventListener('click', () => {
+        label.textContent = item.textContent;
+        items.forEach((el) => el.classList.remove('is-selected'));
+        item.classList.add('is-selected');
+        saveData({ projectType: item.dataset.value });
+        close();
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!container.contains(e.target)) {
+        close();
+      }
+    });
+  });
+</script>
+
+<style>
+  .back-bubble {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 9999;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111;
+    text-decoration: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .back-bubble:hover {
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  .phone-frame--contact {
+    overflow: visible;
+  }
+
+  .contact-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 28px max(28px, env(safe-area-inset-bottom));
+    text-align: center;
+  }
+
+  .contact-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+  }
+
+  .contact-heading {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+  }
+
+  .contact-subtext {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 280px;
+    line-height: 1.5;
+    margin-bottom: 32px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+  }
+
+  .custom-select {
+    width: 100%;
+    position: relative;
+    z-index: 10;
+    margin-bottom: 14px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+  }
+
+  .custom-select__trigger {
+    width: 100%;
+    padding: 18px 24px;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--bg);
+    border: none;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    text-align: left;
+    outline: none;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .custom-select__trigger:focus-visible {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .custom-select__arrow {
+    flex-shrink: 0;
+    color: #999;
+    transition: transform 0.2s ease;
+  }
+
+  .custom-select.is-open .custom-select__arrow {
+    transform: rotate(180deg);
+  }
+
+  .custom-select__options {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    list-style: none;
+    background: var(--bg);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    overflow-y: auto;
+    max-height: 180px;
+    z-index: 20;
+  }
+
+  .custom-select__options.is-open {
+    display: block;
+  }
+
+  .custom-select__option {
+    padding: 16px 24px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--fg);
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .custom-select__option--placeholder {
+    color: var(--muted);
+  }
+
+  .custom-select__option:hover {
+    background: #f5f5f5;
+  }
+
+  .custom-select__option.is-selected {
+    background: #f0f0f0;
+  }
+
+  .custom-select__option + .custom-select__option {
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .btn-whatsapp {
+    display: block;
+    width: 100%;
+    padding: 18px 24px;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    background: #6b6b6b;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+  }
+
+  .btn-whatsapp:hover {
+    background: #555;
+  }
+
+  .btn-whatsapp:active {
+    transform: scale(0.98);
+  }
+
+  .btn-next {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    margin-top: 16px;
+    padding: 8px 0;
+    transition: color 0.2s ease, gap 0.2s ease;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards;
+  }
+
+  .btn-next:hover {
+    color: var(--fg);
+    gap: 10px;
+  }
+</style>

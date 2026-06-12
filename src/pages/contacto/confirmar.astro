@@ -1,0 +1,271 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="PANGEA — Último paso">
+  <a href="/" class="back-bubble" aria-label="Volver al inicio">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+  </a>
+  <div class="phone-frame phone-frame--fixed phone-frame--contact">
+    <main class="contact-content">
+
+      <div class="contact-avatar">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+
+      <h1 class="contact-heading">Último paso</h1>
+
+      <p class="contact-subtext">Dejanos tu contacto para comunicarnos en la brevedad con novedades.</p>
+
+      <form class="contact-form" data-form>
+        <input class="contact-input" type="text" name="name" placeholder="Nombre y Apellido" required>
+        <input class="contact-input" type="tel" name="phone" placeholder="Teléfono" required>
+        <input class="contact-input" type="email" name="email" placeholder="Correo Electrónico" required>
+
+        <button class="btn-submit" type="submit">Finalizar</button>
+      </form>
+
+      <div class="contact-actions">
+        <a href="/contacto/detalles" class="btn-prev">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver
+        </a>
+      </div>
+
+    </main>
+  </div>
+</BaseLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const STORAGE_KEY = 'pangea_contact';
+    const form = document.querySelector('[data-form]');
+    if (!form) return;
+
+    const submitBtn = form.querySelector('.btn-submit');
+    const originalText = submitBtn.textContent;
+
+    const ENDPOINT = '/.netlify/functions/send-email';
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const saved = (() => {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+        catch { return {}; }
+      })();
+
+      const name = form.querySelector('[name="name"]').value;
+      const phone = form.querySelector('[name="phone"]').value;
+      const email = form.querySelector('[name="email"]').value;
+
+      const body = JSON.stringify({
+        name,
+        phone,
+        email,
+        projectType: saved.projectType || '',
+        description: saved.description || '',
+        files: saved.files ? saved.files.map(f => f.name).join(', ') : '',
+      });
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+
+      try {
+        const res = await fetch(ENDPOINT, {
+          method: 'POST',
+          body,
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (res.ok) {
+          localStorage.removeItem(STORAGE_KEY);
+          window.location.href = '/contacto/gracias';
+        } else {
+          throw new Error('Error al enviar');
+        }
+      } catch {
+        window.location.href = '/contacto/error';
+      }
+    });
+  });
+</script>
+
+<style>
+  .back-bubble {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 9999;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111;
+    text-decoration: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .back-bubble:hover {
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  .phone-frame--contact {
+    overflow: visible;
+  }
+
+  .contact-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 28px max(28px, env(safe-area-inset-bottom));
+    text-align: center;
+  }
+
+  .contact-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+  }
+
+  .contact-heading {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+  }
+
+  .contact-subtext {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 300px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+  }
+
+  .contact-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+  }
+
+  .contact-input {
+    width: 100%;
+    padding: 18px 24px;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--fg);
+    background: var(--bg);
+    border: none;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    outline: none;
+    transition: box-shadow 0.2s ease;
+    text-align: left;
+  }
+
+  .contact-input::placeholder {
+    color: #bbb;
+  }
+
+  .contact-input:focus {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 18px 24px;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    background: #6b6b6b;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+
+  .btn-submit:hover {
+    background: #555;
+  }
+
+  .btn-submit:active {
+    transform: scale(0.98);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .success-msg {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--fg);
+    padding: 18px 0;
+  }
+
+  .contact-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+  }
+
+  .btn-prev {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 8px 0;
+    transition: color 0.2s ease, gap 0.2s ease;
+  }
+
+  .btn-prev:hover {
+    color: var(--fg);
+    gap: 10px;
+  }
+</style>

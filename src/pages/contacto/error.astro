@@ -1,0 +1,114 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="PANGEA — Error">
+  <div class="thanks-frame">
+    <div class="thanks-card">
+      <h1 class="thanks-heading">Algo salió mal</h1>
+      <p class="thanks-subtext">Hubo un problema al enviar tu mensaje. Podés intentarlo de nuevo o escribirnos directamente por WhatsApp.</p>
+    </div>
+    <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="thanks-whatsapp">Contactar por WhatsApp</a>
+    <a href="/" class="thanks-back">Volver al inicio</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .thanks-frame {
+    width: 100%;
+    min-height: 100dvh;
+    background: #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .thanks-card {
+    width: 100%;
+    background: #fff;
+    padding: 48px 28px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .thanks-heading {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+  }
+
+  .thanks-subtext {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 300px;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+  }
+
+  .thanks-whatsapp {
+    display: block;
+    width: calc(100% - 56px);
+    max-width: 370px;
+    padding: 18px 0;
+    margin-top: 36px;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+    background: #6b6b6b;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+  }
+
+  .thanks-whatsapp:hover {
+    background: #555;
+  }
+
+  .thanks-whatsapp:active {
+    transform: scale(0.98);
+  }
+
+  .thanks-back {
+    display: block;
+    width: calc(100% - 56px);
+    max-width: 370px;
+    padding: 18px 0;
+    margin-top: 12px;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    color: var(--fg);
+    background: #fff;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+  }
+
+  .thanks-back:hover {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .thanks-back:active {
+    transform: scale(0.98);
+  }
+</style>
